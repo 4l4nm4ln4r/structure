@@ -18,12 +18,12 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
   const [editContent, setEditContent] = useState(item.content);
-  const [editTags, setEditTags] = useState(item.tags.join(', '));
+  const [editTags, setEditTags] = useState((item.tags || []).join(', '));
 
   const startEditing = () => {
     setEditTitle(item.title);
     setEditContent(item.content);
-    setEditTags(item.tags.join(', '));
+    setEditTags((item.tags || []).join(', '));
     setIsEditing(true);
   };
 
@@ -41,7 +41,7 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
   const cancelEdit = () => {
     setEditTitle(item.title);
     setEditContent(item.content);
-    setEditTags(item.tags.join(', '));
+    setEditTags((item.tags || []).join(', '));
     setIsEditing(false);
   };
 
@@ -68,10 +68,10 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
                 <Calendar size={14} />
                 <span>{item.lastModified}</span>
               </div>
-              {item.tags.length > 0 && (
+              {(item.tags || []).length > 0 && (
                 <div className="flex items-center gap-1">
                   <Tag size={14} />
-                  <span>{item.tags.join(', ')}</span>
+                  <span>{(item.tags || []).join(', ')}</span>
                 </div>
               )}
             </div>
