@@ -211,6 +211,63 @@
            hover:bg-[hsl(var(--hover-bg))] px-3 py-2 rounded-md
            transition-all duration-200;
   }
+
+  /* Quill editor theme customization */
+  .ql-editor {
+    color: hsl(var(--text-primary)) !important;
+    background: hsl(var(--panel-main)) !important;
+    font-family: inherit !important;
+    border: none !important;
+  }
+
+  .ql-toolbar {
+    border-color: hsl(var(--border-primary)) !important;
+    background: hsl(var(--panel-sidebar)) !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  .ql-container {
+    border-color: hsl(var(--border-primary)) !important;
+    background: hsl(var(--panel-main)) !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  .ql-toolbar .ql-stroke {
+    stroke: hsl(var(--text-primary)) !important;
+  }
+
+  .ql-toolbar .ql-fill {
+    fill: hsl(var(--text-primary)) !important;
+  }
+
+  .ql-toolbar button:hover {
+    background: hsl(var(--hover-bg)) !important;
+  }
+
+  .ql-toolbar button.ql-active {
+    background: hsl(var(--dashboard-accent)) !important;
+  }
+
+  .ql-picker-label {
+    color: hsl(var(--text-primary)) !important;
+  }
+
+  .ql-picker-options {
+    background: hsl(var(--panel-sidebar)) !important;
+    border-color: hsl(var(--border-primary)) !important;
+  }
+
+  .ql-picker-item {
+    color: hsl(var(--text-primary)) !important;
+  }
+
+  .ql-picker-item:hover {
+    background: hsl(var(--hover-bg)) !important;
+  }
 }
 
 @layer base {

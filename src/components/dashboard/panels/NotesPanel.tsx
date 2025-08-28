@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Edit3, Calendar, Tag, Save, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Calendar, Tag, Clock } from 'lucide-react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface Note {
   id: string;
@@ -15,34 +17,70 @@ interface NotesPanelProps {
 }
 
 export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
-  const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
   const [editContent, setEditContent] = useState(item.content);
   const [editTags, setEditTags] = useState((item.tags || []).join(', '));
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const startEditing = () => {
-    setEditTitle(item.title);
-    setEditContent(item.content);
-    setEditTags((item.tags || []).join(', '));
-    setIsEditing(true);
-  };
-
-  const saveNote = () => {
+  const saveNote = useCallback(() => {
     const tagsArray = editTags.split(',').map(tag => tag.trim()).filter(tag => tag);
-    onUpdate(item.id, {
-      title: editTitle,
-      content: editContent,
-      tags: tagsArray,
-      lastModified: new Date().toLocaleDateString()
-    });
-    setIsEditing(false);
-  };
+    setIsSaving(true);
+    
+    // Simulate save delay
+    setTimeout(() => {
+      onUpdate(item.id, {
+        title: editTitle,
+        content: editContent,
+        tags: tagsArray,
+        lastModified: new Date().toLocaleDateString()
+      });
+      setIsSaving(false);
+    }, 500);
+  }, [item.id, editTitle, editContent, editTags, onUpdate]);
 
-  const cancelEdit = () => {
+  const debouncedSave = useCallback(() => {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    
+    const timeout = setTimeout(() => {
+      saveNote();
+    }, 2000);
+    
+    setSaveTimeout(timeout);
+  }, [saveNote, saveTimeout]);
+
+  useEffect(() => {
     setEditTitle(item.title);
     setEditContent(item.content);
     setEditTags((item.tags || []).join(', '));
-    setIsEditing(false);
+  }, [item]);
+
+  const handleContentChange = (value: string) => {
+    setEditContent(value);
+    debouncedSave();
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTitle(e.target.value);
+    debouncedSave();
+  };
+
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTags(e.target.value);
+    debouncedSave();
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['clean']
+    ],
   };
 
   return (
@@ -51,18 +89,12 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
       <div className="border-b border-[hsl(var(--border-primary))] p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            {isEditing ? (
-              <input
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="text-2xl font-semibold bg-transparent border-none outline-none text-[hsl(var(--text-primary))] w-full"
-                placeholder="Note title..."
-              />
-            ) : (
-              <h1 className="text-2xl font-semibold text-[hsl(var(--text-primary))]">
-                {item.title}
-              </h1>
-            )}
+            <input
+              value={editTitle}
+              onChange={handleTitleChange}
+              className="text-2xl font-semibold bg-transparent border-none outline-none text-[hsl(var(--text-primary))] w-full placeholder:text-[hsl(var(--text-secondary))]"
+              placeholder="Note title..."
+            />
             <div className="flex items-center gap-4 mt-2 text-sm text-[hsl(var(--text-secondary))]">
               <div className="flex items-center gap-1">
                 <Calendar size={14} />
@@ -74,69 +106,44 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
                   <span>{(item.tags || []).join(', ')}</span>
                 </div>
               )}
+              {isSaving && (
+                <div className="flex items-center gap-1 text-[hsl(var(--primary))]">
+                  <Clock size={14} className="animate-spin" />
+                  <span>Saving...</span>
+                </div>
+              )}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={saveNote}
-                  className="btn-primary flex items-center gap-2"
-                >
-                  <Save size={16} />
-                  Save
-                </button>
-                <button
-                  onClick={cancelEdit}
-                  className="btn-ghost flex items-center gap-2"
-                >
-                  <X size={16} />
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={startEditing}
-                className="btn-ghost flex items-center gap-2"
-              >
-                <Edit3 size={16} />
-                Edit
-              </button>
-            )}
           </div>
         </div>
         
-        {isEditing && (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-[hsl(var(--text-primary))] mb-2">
-              Tags (comma-separated)
-            </label>
-            <input
-              value={editTags}
-              onChange={(e) => setEditTags(e.target.value)}
-              className="dashboard-input w-full"
-              placeholder="tag1, tag2, tag3"
-            />
-          </div>
-        )}
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-[hsl(var(--text-primary))] mb-2">
+            Tags (comma-separated)
+          </label>
+          <input
+            value={editTags}
+            onChange={handleTagsChange}
+            className="dashboard-input w-full"
+            placeholder="tag1, tag2, tag3"
+          />
+        </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-6">
-        {isEditing ? (
-          <textarea
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            className="dashboard-input w-full h-full resize-none font-mono text-sm"
-            placeholder="Write your note in Markdown..."
-          />
-        ) : (
-          <div className="prose prose-slate max-w-none h-full overflow-y-auto dashboard-scroll">
-            <div className="whitespace-pre-wrap text-[hsl(var(--text-primary))] leading-relaxed">
-              {item.content}
-            </div>
-          </div>
-        )}
+      <div className="flex-1 p-6 relative">
+        <ReactQuill
+          value={editContent}
+          onChange={handleContentChange}
+          modules={quillModules}
+          theme="snow"
+          className="h-full"
+          style={{
+            height: 'calc(100% - 42px)',
+            '--quill-border-color': 'hsl(var(--border-primary))',
+            '--quill-text-color': 'hsl(var(--text-primary))',
+            '--quill-bg-color': 'hsl(var(--background-primary))',
+          } as React.CSSProperties}
+        />
       </div>
     </div>
   );
