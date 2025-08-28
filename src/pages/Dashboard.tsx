@@ -32,22 +32,27 @@ const initialData = {
     { id: 'errands', name: 'Errands', count: 0, todos: [] }
   ],
   notes: [
-    { 
-      id: 'meeting', 
-      name: 'Meeting Notes', 
-      count: 3,
-      notes: [
-        {
-          id: '1',
-          title: 'Project X Kickoff',
-          content: '# Kickoff Meeting\n\n- Budget needs final approval\n- Timeline draft due next week\n\n## Action Items\n- [ ] Confirm stakeholder list\n- [ ] Send follow-up email',
-          tags: ['project-x', 'meeting'],
-          lastModified: '2024-01-15'
-        }
-      ]
+    {
+      id: '1',
+      title: 'Project X Kickoff',
+      content: '# Kickoff Meeting\n\n- Budget needs final approval\n- Timeline draft due next week\n\n## Action Items\n- [ ] Confirm stakeholder list\n- [ ] Send follow-up email',
+      tags: ['project-x', 'meeting'],
+      lastModified: '2024-01-15'
     },
-    { id: 'ideas', name: 'Ideas', count: 5, notes: [] },
-    { id: 'drafts', name: 'Drafts', count: 1, notes: [] }
+    {
+      id: '2',
+      title: 'Ideas for Q2',
+      content: '# Q2 Planning Ideas\n\n- Explore new markets\n- Improve user onboarding\n- Add mobile app features',
+      tags: ['planning', 'ideas'],
+      lastModified: '2024-01-12'
+    },
+    {
+      id: '3',
+      title: 'Technical Debt Notes',
+      content: '# Technical Debt\n\n## High Priority\n- Refactor authentication system\n- Update dependencies\n\n## Medium Priority\n- Optimize database queries',
+      tags: ['tech', 'debt'],
+      lastModified: '2024-01-10'
+    }
   ],
   links: [
     { 
@@ -105,30 +110,56 @@ export function Dashboard() {
   };
 
   const handleItemAdd = (name: string) => {
-    const newItem: DashboardItem = {
-      id: Date.now().toString(),
-      name,
-      count: 0,
-      todos: [],
-      notes: [],
-      links: []
-    };
-    
-    setData(prev => ({
-      ...prev,
-      [activeSection]: [...prev[activeSection as keyof typeof prev], newItem]
-    }));
-    
-    setActiveItem(newItem.id);
+    if (activeSection === 'notes') {
+      const newNote = {
+        id: Date.now().toString(),
+        title: name,
+        content: `# ${name}\n\nStart writing here...`,
+        tags: [],
+        lastModified: new Date().toLocaleDateString()
+      };
+      
+      setData(prev => ({
+        ...prev,
+        notes: [...prev.notes, newNote]
+      }));
+      
+      setActiveItem(newNote.id);
+    } else {
+      const newItem: DashboardItem = {
+        id: Date.now().toString(),
+        name,
+        count: 0,
+        todos: [],
+        notes: [],
+        links: []
+      };
+      
+      setData(prev => ({
+        ...prev,
+        [activeSection]: [...prev[activeSection as keyof typeof prev], newItem]
+      }));
+      
+      setActiveItem(newItem.id);
+    }
   };
 
   const handleItemUpdate = (itemId: string, updates: any) => {
-    setData(prev => ({
-      ...prev,
-      [activeSection]: prev[activeSection as keyof typeof prev].map((item: any) =>
-        item.id === itemId ? { ...item, ...updates } : item
-      )
-    }));
+    if (activeSection === 'notes') {
+      setData(prev => ({
+        ...prev,
+        notes: prev.notes.map((note: any) =>
+          note.id === itemId ? { ...note, ...updates } : note
+        )
+      }));
+    } else {
+      setData(prev => ({
+        ...prev,
+        [activeSection]: prev[activeSection as keyof typeof prev].map((item: any) =>
+          item.id === itemId ? { ...item, ...updates } : item
+        )
+      }));
+    }
   };
 
   return (

@@ -18,7 +18,7 @@ export function MainPanel({ section, activeItem, items, onItemUpdate }: MainPane
       <div className="panel-main flex-1 flex items-center justify-center">
         <div className="text-center text-[hsl(var(--text-secondary))]">
           <h3 className="text-lg font-medium mb-2">
-            Select {section === 'todos' ? 'a list' : section === 'notes' ? 'a category' : 'a collection'} to get started
+            Select {section === 'todos' ? 'a list' : section === 'notes' ? 'a note' : 'a collection'} to get started
           </h3>
           <p className="text-sm">
             Choose an item from the sidebar to view its contents

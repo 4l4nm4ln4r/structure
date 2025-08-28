@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, MoreHorizontal } from 'lucide-react';
+import { Search, Plus, MoreHorizontal, Calendar, Tag } from 'lucide-react';
 
 interface ContentSidebarProps {
   section: string;
@@ -18,9 +18,9 @@ const sectionConfig = {
     addLabel: 'Add new list',
   },
   notes: {
-    title: 'NOTES CATEGORIES',
-    placeholder: 'Search categories...',
-    addLabel: 'Add new category',
+    title: 'NOTES',
+    placeholder: 'Search notes...',
+    addLabel: 'Add new note',
   },
   links: {
     title: 'LINK COLLECTIONS',
@@ -44,9 +44,14 @@ export function ContentSidebar({
   const config = sectionConfig[section as keyof typeof sectionConfig];
   if (!config) return null;
 
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = items.filter(item => {
+    if (section === 'notes') {
+      return item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             item.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             item.tags?.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    return item.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleAdd = () => {
     if (newItemName.trim()) {
@@ -121,17 +126,40 @@ export function ContentSidebar({
             <div
               key={item.id}
               onClick={() => onItemSelect(item.id)}
-              className={`sidebar-item text-sm ${activeItem === item.id ? 'active' : ''}`}
+              className={`sidebar-item ${activeItem === item.id ? 'active' : ''}`}
             >
-              <span className="flex-1 truncate">{item.name}</span>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-[hsl(var(--text-secondary))]">
-                  {item.count || 0}
-                </span>
-                <button className="opacity-0 group-hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-all">
-                  <MoreHorizontal size={14} />
-                </button>
-              </div>
+              {section === 'notes' ? (
+                <div className="w-full">
+                  <h3 className="font-medium text-[hsl(var(--text-primary))] truncate mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-[hsl(var(--text-secondary))] line-clamp-2 mb-2">
+                    {item.content?.replace(/#+\s*/g, '').substring(0, 80)}...
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-[hsl(var(--text-muted))]">
+                    <Calendar size={10} />
+                    <span>{item.lastModified}</span>
+                    {item.tags?.length > 0 && (
+                      <>
+                        <Tag size={10} />
+                        <span className="truncate">{item.tags.slice(0, 2).join(', ')}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <span className="flex-1 truncate text-sm">{item.name}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-[hsl(var(--text-secondary))]">
+                      {item.count || 0}
+                    </span>
+                    <button className="opacity-0 group-hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-all">
+                      <MoreHorizontal size={14} />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
           
