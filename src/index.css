@@ -2,95 +2,214 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Slack-inspired personal dashboard design system */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    /* Core Dashboard Colors */
+    --background: 248 250 252;
+    --foreground: 215 28% 17%;
+    
+    /* Dashboard Panel System */
+    --dashboard-primary: 220 13% 18%;
+    --dashboard-secondary: 220 13% 91%;
+    --dashboard-accent: 217 91% 60%;
+    --dashboard-accent-hover: 217 91% 55%;
+    --dashboard-muted: 220 9% 46%;
+    
+    /* Panel Backgrounds */
+    --panel-nav: 220 13% 18%;
+    --panel-sidebar: 0 0% 100%;
+    --panel-main: 0 0% 100%;
+    
+    /* Text Colors */
+    --text-primary: 215 28% 17%;
+    --text-secondary: 215 20% 65%;
+    --text-muted: 215 14% 34%;
+    --text-inverse: 0 0% 100%;
+    
+    /* Interactive States */
+    --active-bg: 217 91% 60%;
+    --active-text: 0 0% 100%;
+    --hover-bg: 220 14% 96%;
+    --hover-accent: 217 91% 95%;
+    
+    /* Borders & Dividers */
+    --border-primary: 220 13% 91%;
+    --border-secondary: 220 13% 96%;
+    
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --error: 0 84% 60%;
+    
+    /* Legacy shadcn compatibility */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 215 28% 17%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --popover-foreground: 215 28% 17%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 215 28% 17%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 91% 95%;
+    --accent-foreground: 217 91% 60%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+    --radius: 0.375rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark Dashboard Colors */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    
+    /* Dark Panel System */
+    --dashboard-primary: 224 71% 4%;
+    --dashboard-secondary: 215 28% 17%;
+    --dashboard-accent: 217 91% 60%;
+    --dashboard-accent-hover: 217 91% 65%;
+    --dashboard-muted: 215 20% 65%;
+    
+    /* Dark Panel Backgrounds */
+    --panel-nav: 224 71% 4%;
+    --panel-sidebar: 215 28% 17%;
+    --panel-main: 220 13% 18%;
+    
+    /* Dark Text Colors */
+    --text-primary: 213 31% 91%;
+    --text-secondary: 215 20% 65%;
+    --text-muted: 215 14% 34%;
+    --text-inverse: 224 71% 4%;
+    
+    /* Dark Interactive States */
+    --active-bg: 217 91% 60%;
+    --active-text: 224 71% 4%;
+    --hover-bg: 215 25% 27%;
+    --hover-accent: 217 91% 20%;
+    
+    /* Dark Borders */
+    --border-primary: 215 28% 25%;
+    --border-secondary: 215 28% 22%;
+    
+    /* Legacy shadcn compatibility for dark mode */
+    --card: 220 13% 18%;
+    --card-foreground: 213 31% 91%;
+    --popover: 220 13% 18%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 224 71% 4%;
+    --secondary: 215 28% 25%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 215 28% 25%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 215 28% 25%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 215 28% 25%;
+    --input: 215 28% 25%;
+    --ring: 217 91% 60%;
+  }
+}
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  /* Custom scrollbars for dashboard */
+  .dashboard-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .dashboard-scroll::-webkit-scrollbar-track {
+    background: hsl(var(--border-secondary));
+  }
+  
+  .dashboard-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--dashboard-muted));
+    border-radius: 3px;
+  }
+  
+  .dashboard-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--dashboard-accent));
+  }
+}
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+@layer components {
+  /* Dashboard Panel System */
+  .panel-nav {
+    @apply bg-[hsl(var(--panel-nav))] border-r border-[hsl(var(--border-primary))];
+  }
+  
+  .panel-sidebar {
+    @apply bg-[hsl(var(--panel-sidebar))] border-r border-[hsl(var(--border-primary))];
+  }
+  
+  .panel-main {
+    @apply bg-[hsl(var(--panel-main))];
+  }
+  
+  /* Navigation States */
+  .nav-item {
+    @apply flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 
+           text-[hsl(var(--text-secondary))] hover:bg-[hsl(var(--hover-bg))]
+           hover:text-[hsl(var(--dashboard-accent))];
+  }
+  
+  .nav-item.active {
+    @apply bg-[hsl(var(--active-bg))] text-[hsl(var(--active-text))] 
+           shadow-sm;
+  }
+  
+  /* Sidebar Items */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200
+           text-[hsl(var(--text-primary))] hover:bg-[hsl(var(--hover-bg))]
+           cursor-pointer;
+  }
+  
+  .sidebar-item.active {
+    @apply bg-[hsl(var(--hover-accent))] text-[hsl(var(--dashboard-accent))]
+           border-l-2 border-[hsl(var(--dashboard-accent))];
+  }
+  
+  /* Content Cards */
+  .content-card {
+    @apply bg-[hsl(var(--panel-main))] border border-[hsl(var(--border-primary))]
+           rounded-lg p-4 shadow-sm;
+  }
+  
+  /* Form Elements */
+  .dashboard-input {
+    @apply bg-[hsl(var(--panel-main))] border border-[hsl(var(--border-primary))]
+           rounded-md px-3 py-2 text-[hsl(var(--text-primary))]
+           placeholder:text-[hsl(var(--text-secondary))]
+           focus:border-[hsl(var(--dashboard-accent))] focus:outline-none
+           focus:ring-1 focus:ring-[hsl(var(--dashboard-accent))];
+  }
+  
+  /* Buttons */
+  .btn-primary {
+    @apply bg-[hsl(var(--dashboard-accent))] text-[hsl(var(--active-text))]
+           hover:bg-[hsl(var(--dashboard-accent-hover))] 
+           px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+  
+  .btn-ghost {
+    @apply text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]
+           hover:bg-[hsl(var(--hover-bg))] px-3 py-2 rounded-md
+           transition-all duration-200;
   }
 }
 
