@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { ExternalLink, Plus, Globe, Tag } from 'lucide-react';
+import { ExternalLink, Plus, Globe, Tag, Trash2, Edit2, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface LinkItem {
   id: string;
@@ -20,6 +37,147 @@ interface LinksPanelProps {
   onUpdate: (itemId: string, updates: any) => void;
 }
 
+function SortableLinkItem({ 
+  link, 
+  onDelete, 
+  onEditTitle, 
+  isEditing, 
+  editingText, 
+  setEditingText, 
+  setIsEditing,
+  getFaviconUrl 
+}: {
+  link: LinkItem;
+  onDelete: (id: string) => void;
+  onEditTitle: (id: string, newTitle: string) => void;
+  isEditing: boolean;
+  editingText: string;
+  setEditingText: (text: string) => void;
+  setIsEditing: (editing: boolean) => void;
+  getFaviconUrl: (url: string) => string | null;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: link.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleSaveEdit = () => {
+    if (editingText.trim()) {
+      onEditTitle(link.id, editingText.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      setEditingText(link.title);
+      setIsEditing(false);
+    }
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="content-card group hover:border-[hsl(var(--dashboard-accent))] transition-colors">
+      <div className="flex items-start gap-3">
+        <div 
+          {...attributes} 
+          {...listeners}
+          className="flex-shrink-0 cursor-grab active:cursor-grabbing text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]"
+        >
+          <GripVertical size={14} />
+        </div>
+        
+        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+          {getFaviconUrl(link.url) ? (
+            <img
+              src={getFaviconUrl(link.url)!}
+              alt=""
+              className="w-6 h-6"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling!.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <Globe size={16} className={`text-[hsl(var(--text-secondary))] ${getFaviconUrl(link.url) ? 'hidden' : ''}`} />
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between">
+            {isEditing ? (
+              <input
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+                onBlur={handleSaveEdit}
+                onKeyDown={handleKeyPress}
+                className="dashboard-input flex-1"
+                autoFocus
+              />
+            ) : (
+              <h3 className="font-medium text-[hsl(var(--text-primary))] truncate">
+                {link.title}
+              </h3>
+            )}
+            <div className="flex items-center gap-1 ml-2">
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="opacity-0 group-hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-all"
+              >
+                <Edit2 size={12} />
+              </button>
+              <button 
+                onClick={() => onDelete(link.id)}
+                className="opacity-0 group-hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-all"
+              >
+                <Trash2 size={12} />
+              </button>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-0 group-hover:opacity-100 text-[hsl(var(--dashboard-accent))] hover:text-[hsl(var(--dashboard-accent-hover))] transition-all"
+              >
+                <ExternalLink size={12} />
+              </a>
+            </div>
+          </div>
+          
+          <p className="text-xs text-[hsl(var(--text-muted))] truncate mt-1">
+            {new URL(link.url).hostname}
+          </p>
+          
+          {link.description && (
+            <p className="text-sm text-[hsl(var(--text-secondary))] mt-2 line-clamp-3">
+              {link.description}
+            </p>
+          )}
+          
+          <div className="flex items-center justify-between mt-3 text-xs text-[hsl(var(--text-muted))]">
+            <span>{link.addedDate}</span>
+            {link.tags.length > 0 && (
+              <div className="flex items-center gap-1">
+                <Tag size={10} />
+                <span>{link.tags.join(', ')}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newLink, setNewLink] = useState({
@@ -27,6 +185,15 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
     url: '',
     description: '',
   });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const addLink = () => {
     if (newLink.url.trim() && newLink.title.trim()) {
@@ -45,6 +212,30 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
       
       setNewLink({ title: '', url: '', description: '' });
       setIsAdding(false);
+    }
+  };
+
+  const deleteLink = (linkId: string) => {
+    const updatedLinks = item.links.filter(link => link.id !== linkId);
+    onUpdate(item.id, { links: updatedLinks });
+  };
+
+  const editLinkTitle = (linkId: string, newTitle: string) => {
+    const updatedLinks = item.links.map(link =>
+      link.id === linkId ? { ...link, title: newTitle } : link
+    );
+    onUpdate(item.id, { links: updatedLinks });
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = item.links.findIndex(link => link.id === active.id);
+      const newIndex = item.links.findIndex(link => link.id === over.id);
+      
+      const newLinks = arrayMove(item.links, oldIndex, newIndex);
+      onUpdate(item.id, { links: newLinks });
     }
   };
 
@@ -130,64 +321,37 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
           )}
 
           {/* Links grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {item.links.map((link) => (
-              <div key={link.id} className="content-card group hover:border-[hsl(var(--dashboard-accent))] transition-colors">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                    {getFaviconUrl(link.url) ? (
-                      <img
-                        src={getFaviconUrl(link.url)!}
-                        alt=""
-                        className="w-6 h-6"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <Globe size={16} className={`text-[hsl(var(--text-secondary))] ${getFaviconUrl(link.url) ? 'hidden' : ''}`} />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-medium text-[hsl(var(--text-primary))] truncate">
-                        {link.title}
-                      </h3>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="opacity-0 group-hover:opacity-100 text-[hsl(var(--dashboard-accent))] hover:text-[hsl(var(--dashboard-accent-hover))] transition-all ml-2"
-                      >
-                        <ExternalLink size={14} />
-                      </a>
-                    </div>
-                    
-                    <p className="text-xs text-[hsl(var(--text-muted))] truncate mt-1">
-                      {new URL(link.url).hostname}
-                    </p>
-                    
-                    {link.description && (
-                      <p className="text-sm text-[hsl(var(--text-secondary))] mt-2 line-clamp-3">
-                        {link.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between mt-3 text-xs text-[hsl(var(--text-muted))]">
-                      <span>{link.addedDate}</span>
-                      {link.tags.length > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Tag size={10} />
-                          <span>{link.tags.join(', ')}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={item.links.map(link => link.id)} strategy={rectSortingStrategy}>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {item.links.map((link) => (
+                  <SortableLinkItem
+                    key={link.id}
+                    link={link}
+                    onDelete={deleteLink}
+                    onEditTitle={editLinkTitle}
+                    isEditing={editingId === link.id}
+                    editingText={editingText}
+                    setEditingText={setEditingText}
+                    setIsEditing={(editing) => {
+                      if (editing) {
+                        setEditingId(link.id);
+                        setEditingText(link.title);
+                      } else {
+                        setEditingId(null);
+                        setEditingText('');
+                      }
+                    }}
+                    getFaviconUrl={getFaviconUrl}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
           
           {item.links.length === 0 && !isAdding && (
             <div className="text-center py-12 text-[hsl(var(--text-secondary))]">

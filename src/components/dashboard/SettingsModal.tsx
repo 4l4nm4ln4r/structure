@@ -20,15 +20,7 @@ export function SettingsModal({ isOpen, onClose, theme, onThemeChange }: Setting
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            Settings
-            <button
-              onClick={onClose}
-              className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </DialogTitle>
+          <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6 py-4">
@@ -44,10 +36,10 @@ export function SettingsModal({ isOpen, onClose, theme, onThemeChange }: Setting
                   <button
                     key={option.id}
                     onClick={() => onThemeChange(option.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors border ${
                       theme === option.id
-                        ? 'bg-[hsl(var(--hover-accent))] text-[hsl(var(--dashboard-accent))] border border-[hsl(var(--dashboard-accent))]'
-                        : 'hover:bg-[hsl(var(--hover-bg))] text-[hsl(var(--text-primary))]'
+                        ? 'bg-[hsl(var(--hover-accent))] text-[hsl(var(--dashboard-accent))] border-[hsl(var(--dashboard-accent))]'
+                        : 'hover:bg-[hsl(var(--hover-bg))] text-[hsl(var(--text-primary))] border-[hsl(var(--border-primary))]'
                     }`}
                   >
                     <Icon size={18} />

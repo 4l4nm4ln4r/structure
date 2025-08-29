@@ -162,6 +162,25 @@ export function Dashboard() {
     }
   };
 
+  const handleItemReorder = (reorderedItems: any[]) => {
+    setData(prev => ({
+      ...prev,
+      [activeSection]: reorderedItems
+    }));
+  };
+
+  const handleItemDelete = (itemId: string) => {
+    setData(prev => ({
+      ...prev,
+      [activeSection]: prev[activeSection as keyof typeof prev].filter((item: any) => item.id !== itemId)
+    }));
+    
+    // Clear active item if it was deleted
+    if (activeItem === itemId) {
+      setActiveItem(null);
+    }
+  };
+
   return (
     <div className="min-h-screen flex w-full bg-[hsl(var(--background))]">
       <NavigationSidebar
@@ -176,6 +195,9 @@ export function Dashboard() {
         activeItem={activeItem}
         onItemSelect={setActiveItem}
         onItemAdd={handleItemAdd}
+        onItemUpdate={handleItemUpdate}
+        onItemReorder={handleItemReorder}
+        onItemDelete={handleItemDelete}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
       />
