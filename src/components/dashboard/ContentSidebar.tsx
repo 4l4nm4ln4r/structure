@@ -117,14 +117,6 @@ function SortableItem({
         onClick={() => onSelect(item.id)}
         className={`sidebar-item group ${isActive ? 'active' : ''}`}
       >
-        <div 
-          {...attributes} 
-          {...listeners}
-          className="flex-shrink-0 cursor-grab active:cursor-grabbing"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <GripVertical size={14} />
-        </div>
         
         <div className="flex-1 min-w-0">
           <div className="content-card hover:border-[hsl(var(--dashboard-accent))] cursor-pointer transition-colors">
@@ -149,7 +141,7 @@ function SortableItem({
               </span>
             </div>
             <div 
-              className="text-sm text-[hsl(var(--text-secondary))] line-clamp-2 mb-2"
+              className="text-sm text-[hsl(var(--text-secondary))] line-clamp-2 mb-2 prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{
                 __html: item.content ? item.content.substring(0, 150) + (item.content.length > 150 ? '...' : '') : 'No content'
               }}
@@ -175,24 +167,14 @@ function SortableItem({
         </div>
         
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditing(true);
-            }}
-            className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-colors"
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Edit2 size={12} />
-          </button>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(item.id);
-            }}
-            className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-colors"
-          >
-            <Trash2 size={12} />
-          </button>
+            <GripVertical size={12} />
+          </div>
         </div>
       </div>
     );
@@ -205,14 +187,6 @@ function SortableItem({
       onClick={() => onSelect(item.id)}
       className={`sidebar-item group ${isActive ? 'active' : ''}`}
     >
-      <div 
-        {...attributes} 
-        {...listeners}
-        className="flex-shrink-0 cursor-grab active:cursor-grabbing"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <GripVertical size={14} />
-      </div>
       
       <div className="flex-1 min-w-0">
         {isEditing ? (
@@ -235,24 +209,14 @@ function SortableItem({
           {getItemCount()}
         </span>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditing(true);
-            }}
-            className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-colors"
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Edit2 size={12} />
-          </button>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(item.id);
-            }}
-            className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-colors"
-          >
-            <Trash2 size={12} />
-          </button>
+            <GripVertical size={12} />
+          </div>
         </div>
       </div>
     </div>

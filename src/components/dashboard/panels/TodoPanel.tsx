@@ -25,6 +25,7 @@ interface TodoItem {
   priority: 'low' | 'medium' | 'high';
   dueDate?: string;
   notes?: string;
+  tags?: string[];
 }
 
 interface TodoPanelProps {
@@ -100,13 +101,6 @@ function SortableTodoItem({
         todo.completed ? 'opacity-60' : ''
       }`}
     >
-      <div 
-        {...attributes} 
-        {...listeners}
-        className="flex-shrink-0 cursor-grab active:cursor-grabbing text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]"
-      >
-        <GripVertical size={16} />
-      </div>
       
       <button
         onClick={() => onToggle(todo.id)}
@@ -137,7 +131,6 @@ function SortableTodoItem({
               {todo.text}
             </span>
           )}
-          <Flag size={14} className={priorityColors[todo.priority]} />
         </div>
         
         {todo.dueDate && (
@@ -152,24 +145,29 @@ function SortableTodoItem({
             {todo.notes}
           </p>
         )}
+        
+        {(todo.tags || []).length > 0 && (
+          <div className="flex items-center gap-1 flex-wrap mt-2">
+            {(todo.tags || []).map((tag, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center rounded-full bg-[hsl(var(--hover-bg))] px-2 py-0.5 text-xs font-medium text-[hsl(var(--text-secondary))]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-        <button 
-          onClick={() => setIsEditing(true)}
-          className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-colors"
+        <div 
+          {...attributes} 
+          {...listeners}
+          className="flex-shrink-0 cursor-grab active:cursor-grabbing text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]"
         >
-          <Edit2 size={14} />
-        </button>
-        <button 
-          onClick={() => onDelete(todo.id)}
-          className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-colors"
-        >
-          <Trash2 size={14} />
-        </button>
-        <button className="text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-colors">
-          <MoreHorizontal size={16} />
-        </button>
+          <GripVertical size={14} />
+        </div>
       </div>
     </div>
   );
@@ -256,16 +254,30 @@ export function TodoPanel({ item, onUpdate }: TodoPanelProps) {
               {item.name}
             </h1>
             <p className="text-[hsl(var(--text-secondary))] mt-1">
-              {item.todos.filter(t => !t.completed).length} of {item.todos.length} tasks remaining
+              {item.todos?.filter(t => !t.completed).length || 0} of {item.todos?.length || 0} tasks remaining
             </p>
           </div>
-          <button
-            onClick={() => setIsAdding(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus size={16} />
-            Add new task
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setEditingId(item.name)}
+              className="opacity-80 hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-all"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button 
+              onClick={() => onUpdate(item.id, { delete: true })}
+              className="opacity-80 hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-all"
+            >
+              <Trash2 size={16} />
+            </button>
+            <button
+              onClick={() => setIsAdding(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus size={16} />
+              Add new task
+            </button>
+          </div>
         </div>
       </div>
 

@@ -18,9 +18,9 @@ export function SettingsModal({ isOpen, onClose, theme, onThemeChange }: Setting
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[hsl(var(--panel-main))] border-[hsl(var(--border-primary))]">
         <DialogHeader>
-          <DialogTitle>Settings</DialogTitle>
+          <DialogTitle className="text-[hsl(var(--text-primary))]">Settings</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6 py-4">

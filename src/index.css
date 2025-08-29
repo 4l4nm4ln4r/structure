@@ -268,6 +268,46 @@
   .ql-picker-item:hover {
     background: hsl(var(--hover-bg)) !important;
   }
+
+  /* Notes preview styles */
+  .prose {
+    max-width: none;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    color: hsl(var(--text-primary));
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
+  }
+
+  .prose p {
+    color: hsl(var(--text-secondary));
+    margin-bottom: 0.5em;
+  }
+
+  .prose strong {
+    color: hsl(var(--text-primary));
+  }
+
+  .prose em {
+    color: hsl(var(--text-secondary));
+  }
+
+  .prose ul,
+  .prose ol {
+    color: hsl(var(--text-secondary));
+    margin-bottom: 0.5em;
+  }
+
+  .prose ul li,
+  .prose ol li {
+    margin-bottom: 0.25em;
+  }
 }
 
 @layer base {

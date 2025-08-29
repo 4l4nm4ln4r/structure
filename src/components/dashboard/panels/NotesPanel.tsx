@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Tag, Clock } from 'lucide-react';
+import { Calendar, Tag, Clock, Edit2, Trash2 } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { Badge } from '@/components/ui/badge';
 
 interface Note {
   id: string;
@@ -101,9 +102,13 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
                 <span>{item.lastModified}</span>
               </div>
               {(item.tags || []).length > 0 && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 flex-wrap">
                   <Tag size={14} />
-                  <span>{(item.tags || []).join(', ')}</span>
+                  {(item.tags || []).map((tag, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
               )}
               {isSaving && (
@@ -126,6 +131,15 @@ export function NotesPanel({ item, onUpdate }: NotesPanelProps) {
             className="dashboard-input w-full"
             placeholder="tag1, tag2, tag3"
           />
+        </div>
+        
+        <div className="flex items-center gap-2 mt-4">
+          <button 
+            onClick={() => onUpdate(item.id, { delete: true })}
+            className="opacity-80 hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-all"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       </div>
 

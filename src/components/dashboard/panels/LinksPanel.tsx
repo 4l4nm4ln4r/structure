@@ -90,13 +90,6 @@ function SortableLinkItem({
   return (
     <div ref={setNodeRef} style={style} className="content-card group hover:border-[hsl(var(--dashboard-accent))] transition-colors">
       <div className="flex items-start gap-3">
-        <div 
-          {...attributes} 
-          {...listeners}
-          className="flex-shrink-0 cursor-grab active:cursor-grabbing text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]"
-        >
-          <GripVertical size={14} />
-        </div>
         
         <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
           {getFaviconUrl(link.url) ? (
@@ -130,18 +123,6 @@ function SortableLinkItem({
               </h3>
             )}
             <div className="flex items-center gap-1 ml-2">
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="opacity-0 group-hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-all"
-              >
-                <Edit2 size={12} />
-              </button>
-              <button 
-                onClick={() => onDelete(link.id)}
-                className="opacity-0 group-hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-all"
-              >
-                <Trash2 size={12} />
-              </button>
               <a
                 href={link.url}
                 target="_blank"
@@ -150,6 +131,13 @@ function SortableLinkItem({
               >
                 <ExternalLink size={12} />
               </a>
+              <div 
+                {...attributes} 
+                {...listeners}
+                className="opacity-0 group-hover:opacity-100 flex-shrink-0 cursor-grab active:cursor-grabbing text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))]"
+              >
+                <GripVertical size={12} />
+              </div>
             </div>
           </div>
           
@@ -165,12 +153,19 @@ function SortableLinkItem({
           
           <div className="flex items-center justify-between mt-3 text-xs text-[hsl(var(--text-muted))]">
             <span>{link.addedDate}</span>
-            {link.tags.length > 0 && (
-              <div className="flex items-center gap-1">
-                <Tag size={10} />
-                <span>{link.tags.join(', ')}</span>
-              </div>
-            )}
+          {link.tags.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              <Tag size={10} />
+              {link.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center rounded-full bg-[hsl(var(--hover-bg))] px-2 py-0.5 text-xs font-medium text-[hsl(var(--text-secondary))]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
           </div>
         </div>
       </div>
@@ -184,6 +179,7 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
     title: '',
     url: '',
     description: '',
+    tags: '',
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
@@ -202,7 +198,7 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
         title: newLink.title.trim(),
         url: newLink.url.trim(),
         description: newLink.description.trim(),
-        tags: [],
+        tags: newLink.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         addedDate: new Date().toLocaleDateString(),
       };
       
@@ -210,7 +206,7 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
         links: [...item.links, link]
       });
       
-      setNewLink({ title: '', url: '', description: '' });
+      setNewLink({ title: '', url: '', description: '', tags: '' });
       setIsAdding(false);
     }
   };
@@ -251,23 +247,37 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-[hsl(var(--border-primary))] p-6">
+          <div className="border-b border-[hsl(var(--border-primary))] p-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-[hsl(var(--text-primary))]">
               {item.name}
             </h1>
             <p className="text-[hsl(var(--text-secondary))] mt-1">
-              {item.links.length} saved links
+              {item.links?.length || 0} saved links
             </p>
           </div>
-          <button
-            onClick={() => setIsAdding(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus size={16} />
-            Add Link
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setEditingId(item.name)}
+              className="opacity-80 hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--text-primary))] transition-all"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button 
+              onClick={() => onUpdate(item.id, { delete: true })}
+              className="opacity-80 hover:opacity-100 text-[hsl(var(--text-secondary))] hover:text-[hsl(var(--error))] transition-all"
+            >
+              <Trash2 size={16} />
+            </button>
+            <button
+              onClick={() => setIsAdding(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus size={16} />
+              Add Link
+            </button>
+          </div>
         </div>
       </div>
 
@@ -299,6 +309,13 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
                   placeholder="Optional description"
                   className="dashboard-input w-full resize-none h-20"
                 />
+                <input
+                  type="text"
+                  value={newLink.tags}
+                  onChange={(e) => setNewLink({ ...newLink, tags: e.target.value })}
+                  placeholder="Tags (comma-separated)"
+                  className="dashboard-input w-full"
+                />
                 <div className="flex items-center gap-2">
                   <button
                     onClick={addLink}
@@ -309,7 +326,7 @@ export function LinksPanel({ item, onUpdate }: LinksPanelProps) {
                   <button
                     onClick={() => {
                       setIsAdding(false);
-                      setNewLink({ title: '', url: '', description: '' });
+                      setNewLink({ title: '', url: '', description: '', tags: '' });
                     }}
                     className="btn-ghost"
                   >
